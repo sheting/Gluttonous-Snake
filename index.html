@@ -1,0 +1,85 @@
+<!-- 经典模式和积分模式的差距在于积分模式在于多出了有毒的苹果 -->
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<title>贪吃蛇主页面</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		a{
+			list-style: none;
+		}
+		body{
+			background: url(img/bg2.jpg) ;
+		}
+		#container{
+			width: 500px;
+			height: 270px;
+			/*background: red;*/
+			margin: 50px auto;
+
+		}
+		#nav{
+			width: 500px;
+			height: 70px;
+			line-height: 70px;
+			/*background: blue;*/
+		}
+		#nav span{
+			font-family: Arial;
+			font-size: 32px;
+			font-weight: bold;
+			margin-left: 60px;
+		}
+		#content{
+			width: 500px;
+			height: 200px;
+		}
+		button{
+			margin-top: 22px;
+			margin-left: 75px;
+		}
+		.btn{
+			background: #ff6699;
+			width: 300px;
+			height: 70px;
+			line-height: 70px;
+			text-align: center;
+			cursor: pointer;
+			color: #ffffff;
+			font-size: 32px;
+			font-weight: bold;
+			border: none;
+			border-radius: 3px;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div id="nav"><span>香蕉来了，叮当猫笑了</span></div>
+		<div id="content">
+			<button id="classic" class="btn">经典模式</button>
+			<button id="jifen" class="btn">积分模式</button>
+			<button id="explain" class="btn">游戏说明</button>
+		</div>
+	</div>
+	<script language="JavaScript">
+		var obtnClassic = document.getElementById("classic");
+		var obtnJifen = document.getElementById("jifen");
+		var oExplain = document.getElementById("explain");
+		
+		obtnClassic.onclick = function(){
+			self.location='tanchisheClassic.html';
+		};
+		obtnJifen.onclick = function(){
+			self.location='tanchishejifen.html';
+		};
+		oExplain.onclick = function(){
+			self.location='explain.html';
+		};
+	</script>
+</body>
+</html>

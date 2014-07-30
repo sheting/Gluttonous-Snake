@@ -1,0 +1,311 @@
+<!-- 这个的问题在于撞墙的时候，叮当猫依旧会往外走一格； -->
+<!doctype html>
+<html lang="en">
+<head>  
+	<meta charset="UTF-8"/>
+	<title>经典模式</title>
+	<style>
+		*{
+			margin:0;
+			padding: 0;
+		}
+		body{
+			background: url(img/bg1.jpg) no-repeat;
+			background-size: 1366px 768px;
+		}
+		#container{
+			width: 1000px;
+			margin:20px auto;
+
+		}
+		#nav{
+			height: 30px;
+			width: 998px;
+			background: #5cd;
+			border: 1px solid #ccc;
+		}
+		#nav span{
+			font-family: Arial;
+			font-size: 18px;
+			text-align: center;
+
+		}
+		#ground{
+			width: 1000px;
+			height:500px;
+			opacity: 0.5;
+			filter:alpha(opacity:50);
+			background:#e2e0e2;
+			position: relative;
+
+		}
+		#control{
+			width: 998px;
+			height: 50px;
+			line-height: 50px;
+			background: #5bd;
+			border: 1px solid #ccc;
+			
+		}
+		#banner{
+			font-family: "微软雅黑";
+			font-size: 12px;
+		}
+		#buttons{
+			float: right;
+			margin-right: 10px;
+		}
+		#buttons button{
+			height: 40px;
+			width: 55px;
+		}
+		.block{
+			width: 20px;
+			height: 20px;
+			float: left;
+		}
+		.snake-block{
+			width: 20px;
+			height: 20px;
+			background: url(img/images6.jpg);
+			background-size:  20px 20px;
+			position: absolute;
+			z-index: 10;
+		}
+		.food-block{
+			width: 20px;
+			height: 20px;
+			background: url(img/images8.jpg);
+			background-size:  20px 20px; 
+			position: absolute;
+			z-index: 1;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div id="nav">
+			<span>叮当猫吃香蕉啦~</span>
+		</div>
+		<div id="ground"></div>
+		<div id="control">
+			<span id="banner">JavaScript贪吃蛇 By wichung网讯</span>
+			<div id="buttons">
+				<button id="button-start">开始</button>
+				<button id="button-quit">暂停</button>
+				<button id="speed-up">加速</button>
+				<button id="speed-down">减速</button>
+			</div>
+			
+		</div>
+	</div>	
+	<script>//经典模式和积分模式
+		var oGround = document.getElementById("ground");
+		var n=0;            //吃食物的数量
+		//初始化草场
+		for(var i=0;i<50*25;i++){
+			var oDiv = document.createElement("div");
+			oGround.appendChild(oDiv);
+			oDiv.className = "block";
+		}
+		//设置小蛇
+		var aSnake = [];
+		var oSnakeBlock;
+		for(var i=0;i<1;i++){
+			oSnakeBlock = document.createElement('div');
+				// oSnakeBlock.className = "block snake-block";//多类选择器可以简化代码,***************有问题
+		
+			oSnakeBlock.style.left = (i+1)*20 + "px";
+			oSnakeBlock.style.top = "60px";
+			oSnakeBlock.className = "block snake-block";
+			aSnake.unshift(oSnakeBlock);
+  			oGround.appendChild(oSnakeBlock);
+			// aSnake.push(oSnakeBlock);
+		}
+		//初始化食物
+		var oFoodBlock;
+		var topPos;
+		var leftPos;
+		function createFood(){
+			var bFlag;
+			
+			//获得随机数，并且是20的倍数
+			//判断生成的食物是否和蛇身重合
+			do{
+				bFlag = false;
+				topPos = Math.floor(Math.random()*500);
+				topPos = topPos - topPos % 20 + "px";
+
+				leftPos = Math.floor(Math.random()*1000);
+				leftPos = leftPos - leftPos % 20 + "px"; 
+
+				for(var i=0;i<aSnake.length;i++){
+					var snakeBlock = aSnake[i];
+					if(topPos == snakeBlock.style.top && leftPos == snakeBlock.style.left){
+						bFlag = true;
+						break;
+					}
+				}
+			}while(bFlag)
+			oFoodBlock = document.createElement('div');
+			oFoodBlock.className = "block food-block";
+			oFoodBlock.style.top = topPos;
+			oFoodBlock.style.left = leftPos;
+			oGround.appendChild(oFoodBlock);
+
+		}
+		createFood();
+		//设置障碍物
+
+		//蛇移动的方法
+		var moveDir = "right";
+		var snakeHead;
+		function move(){
+			snakeHead = aSnake[0];//得到蛇头
+			//snakeHead.className = "headBK";
+			var nextPos = {
+				left : parseInt(snakeHead.style.left),
+			    top : parseInt(snakeHead.style.top)
+			};
+
+			switch(moveDir){
+				case "right":
+					nextPos.left += 20;
+					break;
+				case "up":
+					nextPos.top -= 20;
+					break;
+				case "left":
+					nextPos.left -= 20;
+					break;
+				case "bottom":
+					nextPos.top += 20;
+			}
+			var snakeTail = aSnake.pop();
+			aSnake.unshift(snakeTail);//将蛇尾加到蛇头
+			snakeTail.style.left = nextPos.left + "px";
+			snakeTail.style.top = nextPos.top + "px";
+
+
+			aSnake[0].className = "snake-block";
+			for(var i=1;i<aSnake.length;i++){
+				aSnake[i].className = "food-block";
+			}
+			//判断撞墙
+			if(nextPos.left == -20 || nextPos.left == 1000 || nextPos.top == -20 || nextPos.top == 500){
+				clearInterval(timer);
+				//alert("game over!");
+				document.write("game over!"+"叮当猫总共消灭香蕉"+n+"个");
+				rank();	
+			}
+			//是否吃到自己；
+			if(aSnake.length>=4){
+				for(var i=4;i<aSnake.length;i++){
+					snakeHead = aSnake[0];
+					if(snakeHead.style.top == aSnake[i].style.top && snakeHead.style.left == aSnake[i].style.left){
+						clearInterval(timer);
+						document.write("game over!"+"叮当猫总共消灭香蕉"+n+"个");
+						rank();
+					}	
+				}
+		    }
+			eat();
+			// if(snakeHead.style.top == oFoodBlock.style.top && snakeHead.style.left == oFoodBlock.style.left){
+			// 	oFoodBlock.style.background = "red";
+			// 	aSnake.push(oFoodBlock);
+			// 	createFood();
+			// }
+		}
+
+		//吃食物
+		
+		function eat(){
+			snakeHead = aSnake[0];//得到蛇头
+			if(snakeHead.style.top == oFoodBlock.style.top && snakeHead.style.left == oFoodBlock.style.left){
+				oFoodBlock.className = "food-block";
+				aSnake.push(oFoodBlock);
+				n++;
+				createFood();
+			}
+			aSnake[0].className = "snake-block";
+			for(var i=1;i<aSnake.length;i++){
+				aSnake[i].className = "food-block";
+			}
+		}
+		
+		//吃货级别
+		function rank(){
+			if(n<9)
+				alert("吃货一级叮当猫诞生！")
+			else if(n>=9&&n<19){
+				alert("不能吃太多哦，小心走不动道儿的~")
+			}else{
+				alert("原来真正的大吃货是叮当猫呀~")
+			}
+		}
+
+
+
+
+
+		var timer;
+		var oButtonStart = document.getElementById('button-start');
+		var oButtonQuit = document.getElementById('button-quit');
+		var oButtonSpeedUp = document.getElementById('speed-up');
+		var oButtonSpeedDown = document.getElementById('speed-down');
+		var speed = 400;
+		//给开始按钮注册单击事件
+		oButtonStart.onclick = function(){
+			timer = setInterval(function(){
+				move();
+			},speed);
+			document.onkeydown = function(e){
+			switch(e.which){                     //蛇移动的方向
+				case 37:
+					if(moveDir!="right"){
+						moveDir = "left";
+					}
+					break;
+				case 38:
+					if(moveDir!="bottom"){
+						moveDir = "up";
+					}
+					break;
+				case 39:
+					if(moveDir!="left"){
+						moveDir = "right";
+					}
+					break;
+				case 40:
+					if(moveDir!="up"){
+						moveDir ="bottom";
+					}
+					break;
+				case 189:                      //-代表减速
+					oButtonSpeedDown.onclick();
+					break;
+				case 187:                      //+代表加速
+					oButtonSpeedUp.onclick();
+					break;
+			}
+		};
+		};
+		//暂停
+		oButtonQuit.onclick = function(){
+			clearInterval(timer);
+		};
+		//加速
+		oButtonSpeedUp.onclick = function(){
+			clearInterval(timer);
+			speed -= 20;
+			oButtonStart.onclick();
+		};
+		//减速
+		oButtonSpeedDown.onclick = function(){
+			clearInterval(timer);
+			speed += 20;
+			oButtonStart.onclick();
+		};
+	</script>
+</body>
+</html>

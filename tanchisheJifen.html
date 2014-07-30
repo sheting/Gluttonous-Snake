@@ -1,0 +1,391 @@
+<!-- 这个的问题在于撞墙的时候，叮当猫依旧会往外走一格； -->
+<!doctype html>
+<html lang="en">
+<head>  
+	<meta charset="UTF-8"/>
+	<title>积分模式</title>
+	<style>
+		*{
+			margin:0;
+			padding: 0;
+		}
+		body{
+			background: url(img/bg4.jpg) no-repeat;
+			background-size: 1366px 768px;
+		}
+		#container{
+			width: 1000px;
+			margin:20px auto;
+
+		}
+		#nav{
+			height: 30px;
+			width: 998px;
+			background: pink;
+			border: 1px solid #ccc;
+		}
+		#nav span{
+			font-family: Arial;
+			font-size: 18px;
+			text-align: center;
+
+		}
+		#ground{
+			width: 1000px;
+			height:500px;
+			opacity: 0.5;
+			filter:alpha(opacity:50);
+			background:#e2e0e2;
+			position: relative;
+
+		}
+		#control{
+			width: 998px;
+			height: 50px;
+			line-height: 50px;
+			background: pink;
+			border: 1px solid #ccc;
+			
+		}
+		#banner{
+			font-family: "微软雅黑";
+			font-size: 12px;
+		}
+		#buttons{
+			float: right;
+			margin-right: 10px;
+		}
+		#buttons button{
+			height: 40px;
+			/*width: 55px;*/
+			padding: 0 20px;
+		}
+		.block{
+			width: 20px;
+			height: 20px;
+			float: left;
+		}
+		.snake-block{
+			background: url(img/images6.jpg);
+			background-size:  20px 20px;
+			position: absolute;
+			z-index: 10;
+		}
+		.food-block{
+			background: url(img/images8.jpg);
+			background-size:  20px 20px; 
+			position: absolute;
+			z-index: 1;
+		}
+		.zhadan{
+			background: url(img/zhadan.png);
+			background-size:  20px 20px; 
+			position: absolute;
+		}
+		.bang{
+			width: 50px;
+			height: 50px;
+			background: url(img/bang.gif);
+			background-size: 50px 50px;
+			position: absolute;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div id="nav">
+			<span>叮当猫吃香蕉啦~</span>
+		</div>
+		<div id="ground"></div>
+		<div id="control">
+			<span id="banner">JavaScript贪吃蛇 By wichung网讯</span>
+			<div id="buttons">
+				<button id="button-start">开始</button>
+				<button id="button-quit">暂停</button>
+				<button id="speed-up">加速</button>
+				<button id="speed-down">减速</button>
+				<button id="sum">显示本次游戏总得分</button>
+			</div>
+			
+		</div>
+	</div>	
+	<script>//经典模式和积分模式
+		var oGround = document.getElementById("ground");
+		var oSum = document.getElementById("sum");
+		var n=0;            //吃食物的数量
+		//初始化草场
+		for(var i=0;i<50*25;i++){
+			var oDiv = document.createElement("div");
+			oGround.appendChild(oDiv);
+			oDiv.className = "block";
+		}
+		//设置小蛇
+		var aSnake = [];
+		var oSnakeBlock;
+		for(var i=0;i<1;i++){
+			oSnakeBlock = document.createElement('div');
+				// oSnakeBlock.className = "block snake-block";//多类选择器可以简化代码,***************有问题
+		
+			oSnakeBlock.style.left = (i+1)*20 + "px";
+			oSnakeBlock.style.top = "60px";
+			oSnakeBlock.className = "block snake-block";
+			aSnake.unshift(oSnakeBlock);
+  			oGround.appendChild(oSnakeBlock);
+			// aSnake.push(oSnakeBlock);
+		}
+		//初始化食物
+		var oFoodBlock;
+		var topPos;
+		var leftPos;
+		var num;
+		var aObstacle = [];//定义障碍obstacle数组
+		function createObstacle(){//固定的
+			var aFlag;
+			var bFlag;
+			num = 0;
+			//for(var i=0;i<=2;i++)
+			while(num<8){
+			do{
+				bFlag = false;
+				aFlag = false;
+
+				topPos = Math.floor(Math.random()*500);
+				topPos = topPos - topPos % 20 + "px";
+
+				leftPos = Math.floor(Math.random()*1000);
+				leftPos = leftPos - leftPos % 20 + "px"; 
+
+				for(var i=0;i<aSnake.length;i++){//判断是否与蛇身重合
+					var snakeBlock = aSnake[i];
+					if(topPos == snakeBlock.style.top && leftPos == snakeBlock.style.left){
+						bFlag = true;
+						break;
+					}
+				}
+				//alert(bFlag+"1");
+				if(num >= 1){               //判断是否与其他的障碍重合
+					for(var j=0;j<aObstacle.length;j++){
+						var pFoodBlock = aObstacle[j];
+						if(topPos == pFoodBlock.style.top && leftPos == pFoodBlock.style.left){
+							aFlag = true;
+							break;
+					}
+					}
+					bFlag = bFlag || aFlag;
+				}
+				//alert(bFlag+"2");
+			}while(bFlag);
+			oFoodBlock = document.createElement('div');
+			oFoodBlock.className = "block zhadan";
+			oFoodBlock.style.top = topPos;
+			oFoodBlock.style.left = leftPos;
+			oGround.appendChild(oFoodBlock);
+			aObstacle.push(oFoodBlock);
+			// if(!aObstacle[1])
+			 //alert("aaaaa"+num);
+			num++;
+		}
+		}
+		createObstacle();
+
+
+		function createFood(){//随机产生食物
+			var aFlag;
+			var bFlag;
+			//获得随机数，并且是20的倍数
+			//判断生成的食物是否和蛇身重合
+			do{
+				bFlag = false;
+				topPos = Math.floor(Math.random()*500);
+				topPos = topPos - topPos % 20 + "px";
+
+				leftPos = Math.floor(Math.random()*1000);
+				leftPos = leftPos - leftPos % 20 + "px"; 
+
+				for(var i=0;i<aSnake.length;i++){
+					var snakeBlock = aSnake[i];
+					if(topPos == snakeBlock.style.top && leftPos == snakeBlock.style.left){
+						bFlag = true;
+						break;
+					}
+				}
+
+				for(var i=0;i<aObstacle.length;i++){
+					var obstacle = aObstacle[i];
+					if(topPos == obstacle.style.top && leftPos == obstacle.style.left){
+						bFlag = true;
+						break;
+					}
+				}
+				bFlag = bFlag || aFlag;
+
+			}while(bFlag)
+			oFoodBlock = document.createElement('div');
+			oFoodBlock.className = "block food-block";
+			oFoodBlock.style.top = topPos;
+			oFoodBlock.style.left = leftPos;
+			oGround.appendChild(oFoodBlock);
+		}
+
+		createFood();
+
+		//蛇移动的方法
+		var moveDir = "right";
+		var snakeHead;
+		function move(){
+			snakeHead = aSnake[0];//得到蛇头
+			//snakeHead.className = "headBK";
+			var nextPos = {
+				left : parseInt(snakeHead.style.left),
+			    top : parseInt(snakeHead.style.top)
+			};
+
+			switch(moveDir){
+				case "right":
+					nextPos.left += 20;
+					break;
+				case "up":
+					nextPos.top -= 20;
+					break;
+				case "left":
+					nextPos.left -= 20;
+					break;
+				case "bottom":
+					nextPos.top += 20;
+			}
+			var snakeTail = aSnake.pop();
+			aSnake.unshift(snakeTail);//将蛇尾加到蛇头
+			snakeTail.style.left = nextPos.left + "px";
+			snakeTail.style.top = nextPos.top + "px";
+
+
+			aSnake[0].className = "block snake-block";
+			for(var i=1;i<aSnake.length;i++){
+				aSnake[i].className = "food-block";
+			}
+			//判断是否吃到炸弹
+			var cFlag;
+			cFlag = true;
+			if(cFlag){
+				for(var i=0;i<aObstacle.length;i++){
+					snakeHead = aSnake[0];
+					if(snakeHead.style.top == aObstacle[i].style.top && snakeHead.style.left == aObstacle[i].style.left){
+						clearInterval(timer);
+						alert("game over!"+"叮当猫总共消灭香蕉"+n+"个");
+						cFlag = false;
+						break;
+						//aObstacle.className = "block bang";
+					}	
+
+				}
+				if(!cFlag){
+					for(var i=0;i<aObstacle.length;i++){
+					aObstacle[i].className = "block bang";
+					}
+				}
+		 	}
+			//判断撞墙
+			if(nextPos.left == -20 || nextPos.left == 1000 || nextPos.top == -20 || nextPos.top == 500){
+				clearInterval(timer);
+				//alert("game over!");
+				alert("game over!"+"叮当猫总共消灭香蕉"+n+"个");	
+			}
+			//是否吃到自己；
+			if(aSnake.length>=4){
+				for(var i=4;i<aSnake.length;i++){
+					snakeHead = aSnake[0];
+					if(snakeHead.style.top == aSnake[i].style.top && snakeHead.style.left == aSnake[i].style.left){
+						clearInterval(timer);
+						alert("game over!"+"叮当猫总共消灭香蕉"+n+"个");
+					}	
+				}
+		    }
+			eat();
+			// if(snakeHead.style.top == oFoodBlock.style.top && snakeHead.style.left == oFoodBlock.style.left){
+			// 	oFoodBlock.style.background = "red";
+			// 	aSnake.push(oFoodBlock);
+			// 	createFood();
+			// }
+		}
+		//吃食物
+		var score;
+		score = 0;
+		function eat(){
+			snakeHead = aSnake[0];//得到蛇头
+			if(snakeHead.style.top == oFoodBlock.style.top && snakeHead.style.left == oFoodBlock.style.left){
+				oFoodBlock.className = "block food-block";
+				aSnake.push(oFoodBlock);
+				score += 2;
+				oSum.innerHTML="本次游戏获得" + score + "分";
+				n++;
+				createFood();
+			}
+			aSnake[0].className = "block snake-block";
+			for(var i=1;i<aSnake.length;i++){
+				aSnake[i].className = "block food-block";
+			}
+			
+		}
+		
+		
+		var timer;
+		var oButtonStart = document.getElementById('button-start');
+		var oButtonQuit = document.getElementById('button-quit');
+		var oButtonSpeedUp = document.getElementById('speed-up');
+		var oButtonSpeedDown = document.getElementById('speed-down');
+		var speed = 400;
+		//给开始按钮注册单击事件
+		oButtonStart.onclick = function(){
+			timer = setInterval(function(){
+				move();
+			},speed);
+			document.onkeydown = function(e){
+			switch(e.which){                     //蛇移动的方向
+				case 37:
+					if(moveDir!="right"){
+						moveDir = "left";
+					}
+					break;
+				case 38:
+					if(moveDir!="bottom"){
+						moveDir = "up";
+					}
+					break;
+				case 39:
+					if(moveDir!="left"){
+						moveDir = "right";
+					}
+					break;
+				case 40:
+					if(moveDir!="up"){
+						moveDir ="bottom";
+					}
+					break;
+				case 189:                      //-代表减速
+					oButtonSpeedDown.onclick();
+					break;
+				case 187:                      //+代表加速
+					oButtonSpeedUp.onclick();
+					break;
+			}
+		};
+		};
+		//暂停
+		oButtonQuit.onclick = function(){
+			clearInterval(timer);
+		};
+		//加速
+		oButtonSpeedUp.onclick = function(){
+			clearInterval(timer);
+			speed -= 20;
+			oButtonStart.onclick();
+		};
+		//减速
+		oButtonSpeedDown.onclick = function(){
+			clearInterval(timer);
+			speed += 20;
+			oButtonStart.onclick();
+		};
+	</script>
+</body>
+</html>
